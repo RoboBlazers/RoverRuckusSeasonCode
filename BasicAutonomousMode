@@ -1,0 +1,86 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+/**
+ * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
+ * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
+ * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
+ * class is instantiated on the Robot Controller and executed.
+ *
+ * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
+ * It includes all the skeletal structure that all linear OpModes contain.
+ *
+ * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ */
+
+@Autonomous(name="BasicAutonomousMode", group="Linear Opmode")
+@Disabled
+public class BasicAutonomousMode extends LinearOpMode {
+
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
+
+    @Override
+    public void runOpMode() {
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+        DcMotor leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
+        DcMotor rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        waitForStart();
+        runtime.reset();
+        // Notes.1 make two autonomous programs, depending on which side of the lander we are facing
+        // Must set arm motor power to get off of the lander and
+        // then possibly turn the robot depending on how it lands, starting towards the sampling
+        // (to jiggle out of the latch) right up, both back, left up
+
+        // Notes.2 maybe take one of the jiggle movements out since the hook is able to go out at an angle
+        // maybe just have one wide left turn, back it up, and then straighten out the robot
+        // (depending on how much give the hook gives us)
+
+
+        //code after the robot is dropped from the lander but is still connected to the latch
+        while (getRuntime() < 3.5){}
+        leftDrive.setPower(-.15);
+        rightDrive.setPower(.25);
+        while (getRuntime() < 3.75){}
+        leftDrive.setPower(-.25);
+        rightDrive.setPower(-.25);
+        while (getRuntime() < 4.0);
+        leftDrive.setPower (.25);
+        rightDrive.setPower (0.0);
+        while (getRuntime() < 4.25);
+        leftDrive.setPower (.75);
+        while (getRuntime() < 4.5);
+        leftDrive.setPower (.75);
+        rightDrive.setPower (.75);
+        while (getRuntime() < 5);
+        leftDrive.setPower (1);
+        while (getRuntime() < 5.5);
+        leftDrive.setPower (1);
+        rightDrive.setPower (1);
+        while (getRuntime() <6.5);
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
+
+
+
+
+
+
+        leftDrive.setPower(.5);
+        rightDrive.setPower(-.5);
+        while (getRuntime() < 5){}
+        leftDrive.setPower(1.0);
+        rightDrive.setPower(1.0);
+
+    }
+}
+
