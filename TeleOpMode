@@ -34,10 +34,10 @@ However, copying code for game use is discouraged since no team will learn by co
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -45,7 +45,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
  * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
+ * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
  *
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
@@ -64,7 +64,7 @@ public class TeleOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Initialized");sssssss
         telemetry.update();
 
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -72,11 +72,16 @@ public class TeleOpMode extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
         DcMotor leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         DcMotor rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        DcMotor armMotor = hardwareMap.get(DcMotor.class, "arm_lift");
+        Servo servo = hardwareMap.get(Servo.class, "ar");
+        //
+
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        armMotor.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -88,30 +93,69 @@ public class TeleOpMode extends LinearOpMode {
             // Setup a variable for each drive wheel to save power level for telemetry
             double leftPower;
             double rightPower;
-
+            double armPower;
             // Choose to drive using either Tank Mode, or POV Mode
             // Comment out the method that's not used.  The default below is POV.
 
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
+            // arm is the primary arm, ar is the secondary arm (the one controlled by the servo)
+            // and its called ar because it is shorter than the arm -Derrick
             double drive = -gamepad1.left_stick_y;
-            double turn  =  gamepad1.right_stick_x;
-            leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-            rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+            double turn = gamepad1.right_stick_x;
+            double arm = -gamepad2.left_stick_y;
+            double ar = -gamepad2.right_stick_y;
 
-            // Tank Mode uses one stick to control each wheel.
-            // - This requires no math, but it is hard to drive forward slowly and keep straight.
-            // leftPower  = -gamepad1.left_stick_y ;
-            // rightPower = -gamepad1.right_stick_y ;
 
-            // Send calculated power to wheels
-            leftDrive.setPower(leftPower);
-            rightDrive.setPower(rightPower);
+            leftPower = Range.clip(drive + turn, -1.0, 1.0);
+            rightPower = Range.clip(drive - turn, -1.0, 1.0);
+            armPower = Range.clip(arm, -.5, .5);
+            if (gamepad2.left_bumper) {
+                armPower *= 2;
+            }
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-            telemetry.update();
+            if (gamepad2.right_bumper) {
+                if (gamepad2.a) {
+                    ar = 10;
+                } else if (gamepad2.b) {
+                    ar = 35;
+                } else if (gamepad2.x) {
+                    ar = 60;
+                } else if (gamepad2.y) {
+                    ar = 90;
+                } else {
+                    if (gamepad2.a) {
+                        ar = 100;
+                    } else if (gamepad2.b) {
+                        ar = 125;
+                    } else if (gamepad2.x) {
+                        ar = 150;
+                    } else if (gamepad2.y) {
+                        ar = 180;
+
+                    }
+                    servo.setPosition(ar);
+
+
+                    // Tank Mode uses one stick to control each wheel.
+                    // - This requires no math, but it is hard to drive forward slowly and keep straight.
+                    // leftPower  = -gamepad1.left_stick_y ;
+                    // rightPower = -gamepad1.right_stick_y ;
+
+                    // Send calculated power to wheelsss
+                    leftDrive.setPower(leftPower);
+                    rightDrive.setPower(rightPower);
+                    armMotor.setPower(armPower);
+
+                }
+
+                // Show the elapsed game time and wheel power.
+                telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+                telemetry.update();
+
+
+            }
         }
     }
 }
