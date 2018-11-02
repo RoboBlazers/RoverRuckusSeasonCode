@@ -1,9 +1,22 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -20,7 +33,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Autonomous(name="BasicAutonomousMode", group="Linear Opmode")
-@Disabled
+//@Disabled
 public class BasicAutonomousMode extends LinearOpMode {
 
     // Declare OpMode members.
@@ -32,8 +45,13 @@ public class BasicAutonomousMode extends LinearOpMode {
         telemetry.update();
         DcMotor leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
         DcMotor rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
+        DcMotor armMotor = hardwareMap.get(DcMotor.class, "arm_lift");
+        Servo servo = hardwareMap.get(Servo.class, "ar");
+        Servo scoopServo = hardwareMap.get(Servo.class, "scoop_servo");
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        scoopServo.setPosition(0); // working under the assumption that closed is 0
+        servo.setPosition(.5); // keep the ar at a position that holds Wilson2.0 up.
         waitForStart();
         runtime.reset();
         // Notes.1 make two autonomous programs, depending on which side of the lander we are facing
@@ -45,41 +63,59 @@ public class BasicAutonomousMode extends LinearOpMode {
         // maybe just have one wide left turn, back it up, and then straighten out the robot
         // (depending on how much give the hook gives us)
 
+        servo.setPosition(1);  // release the body of Wilson to drop down to the floor.
+        armMotor.setPower(.6); // keep the arm powered so the body doesn't slam the floor.
 
-        //code after the robot is dropped from the lander but is still connected to the latch
-        while (getRuntime() < 3.5){}
-        leftDrive.setPower(-.15);
-        rightDrive.setPower(.25);
-        while (getRuntime() < 3.75){}
-        leftDrive.setPower(-.25);
-        rightDrive.setPower(-.25);
-        while (getRuntime() < 4.0);
-        leftDrive.setPower (.25);
-        rightDrive.setPower (0.0);
-        while (getRuntime() < 4.25);
-        leftDrive.setPower (.75);
-        while (getRuntime() < 4.5);
-        leftDrive.setPower (.75);
-        rightDrive.setPower (.75);
-        while (getRuntime() < 5);
-        leftDrive.setPower (1);
-        while (getRuntime() < 5.5);
-        leftDrive.setPower (1);
-        rightDrive.setPower (1);
-        while (getRuntime() <6.5);
+        while (getRuntime() < 2){} // let it drop for two seconds. (that should be fine)
+
+        armMotor.setPower(0); // kill the arm power
+        leftDrive.setPower(-.5);
+        rightDrive.setPower(.5); // jerk the body to get the arm free.
+
+        while (getRuntime() < 3) {} // for 1 second
+        leftDrive.setPower(.3);
+        rightDrive.setPower(-.3); // reverse jerk it to loosen up anything that was stuck.
+
+        while (getRuntime() < 3.25) {}
+        leftDrive.setPower(-.5);
+        rightDrive.setPower(.5); // continue to jerk free.  This should put us at an angled position relative to the lander.
+
+        while (getRuntime() < 4) {}
+        leftDrive.setPower(-.3);
+        rightDrive.setPower(-.3); // back it up.
+
+        while (getRuntime() < 5) {}
+        leftDrive.setPower(.3);
+        rightDrive.setPower(-.3); // straighten out the robot so we're square with the lander.
+
+        while (getRuntime() < 6) {} // now we should be free of the lander.  We should probably back up.
+        leftDrive.setPower(-.5);
+        rightDrive.setPower(.5);
+
+        while (getRuntime() < 9) {} // for 3 seconds
+        scoopServo.setPosition(.5); // this is open if 0 is closed
+        leftDrive.setPower(1);
+        rightDrive.setPower(1); // hard jerk to shake the marker out.
+        while (getRuntime() < 9.5) {}
+        leftDrive.setPower(-.1);
+        rightDrive.setPower(-.1); // slowly push the marker towards depot.
+
+        while (getRuntime() < 10) {}
+        scoopServo.setPosition(0);  // reset the scoop servo while the marker is rolling
+
+        while (getRuntime() < 12) {}
         leftDrive.setPower(0);
-        rightDrive.setPower(0);
+        rightDrive.setPower(0); // stop everything
 
 
 
 
 
+        // we need to make separate modes for the two sides of the lander, and then possibly more
+        // for compatibility with other teams' autonomous modes.
 
-        leftDrive.setPower(.5);
-        rightDrive.setPower(-.5);
-        while (getRuntime() < 5){}
-        leftDrive.setPower(1.0);
-        rightDrive.setPower(1.0);
+
+
 
     }
 }
