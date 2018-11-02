@@ -90,7 +90,7 @@ public class BasicAutonomousMode extends LinearOpMode {
 
         while (getRuntime() < 6) {} // now we should be free of the lander.  We should probably back up.
         leftDrive.setPower(-.5);
-        rightDrive.setPower(.5);
+        rightDrive.setPower(.5);   
 
         while (getRuntime() < 9) {} // for 3 seconds
         scoopServo.setPosition(.5); // this is open if 0 is closed
